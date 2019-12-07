@@ -21,6 +21,12 @@ struct tile
 	bool hasMine;
 };
 
+struct minesweeper
+{
+	tile tiles[BOARD_WIDTH][BOARD_HEIGHT];
+	int width, height, mineCount, flagCount, unrevealedCount, moves;
+};
+
 
 void displayBoard(tile tiles[][BOARD_HEIGHT], int width, int height)
 {
@@ -149,10 +155,43 @@ int main(int argc, char* argv[])
 
 
 
-
+	char userDecision = ' ';
 	// start game
 	do
 	{ 
+		userDecision = ' ';
+
+		//moves will go here
+		cout << "[D]ig up Tile" << endl;
+		cout << "[F]lag/Unflag Tile. 0 flag(s) placed." << endl;
+		cout << "[Q]uit" << endl;
+		cout << "Choose an action: ";
+		cin >> userDecision;
+		cout << endl;
+
+		switch (userDecision)
+		{
+		case 'd':
+		case 'D':
+			cout << "D works"<<endl;
+			break;
+
+		case 'f':
+		case 'F':
+			cout << "F works" << endl;
+			break;
+		
+		case 'q':
+		case 'Q':
+			cout << "Q works." << endl;
+			return 0;
+
+		default:
+				cout << "Invlaid Responce. Please enter a value in the []." << endl;
+				continue;
+		}
+
+
 		//user input checks and 0 base the input
 		displayBoard(tiles, BOARD_WIDTH, BOARD_HEIGHT);
 		cout << "Dig at X: ";
