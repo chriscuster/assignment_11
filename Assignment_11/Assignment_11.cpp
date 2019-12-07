@@ -263,7 +263,7 @@ int main(int argc, char* argv[])
 			break;
 		case 'f':
 		case 'F':
-			cout << "Dig at... \nRow: ";
+			cout << "Place Flag at... \nRow: ";
 			cin >> userWidth;
 			cout << endl;
 			cout << "Column: ";
@@ -272,6 +272,17 @@ int main(int argc, char* argv[])
 
 			userWidth--;
 			userHeight--;
+
+			if (tiles[userWidth][userHeight].letter == '?')
+				tiles[userWidth][userHeight].letter = 'P';
+				
+
+			else if (tiles[userWidth][userHeight].letter == 'P')
+				tiles[userWidth][userHeight].letter = '?';
+
+			else
+				cout << "Invalid Response. Please try again." << endl;
+					   			 		  
 			break;
 
 		case 'q':
@@ -280,7 +291,7 @@ int main(int argc, char* argv[])
 			return 0;
 
 		default:
-			cout << "Invlaid Responce. Please enter a value in the []." << endl;
+			cout << "Invalid Response. Please enter a value in the []." << endl;
 			continue;
 		}
 
