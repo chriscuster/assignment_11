@@ -15,7 +15,14 @@ const int BOARD_WIDTH = 12;
 const int BOARD_HEIGHT = 9;
 
 
-void displayBoard(char board[][BOARD_HEIGHT], int width, int height)
+struct tile
+{
+	char letter;
+	bool hasMine;
+};
+
+
+void displayBoard(tile tiles[][BOARD_HEIGHT], int width, int height)
 {
 	// adjusting height for extra rows to display
 	for (int h = 0; h < BOARD_HEIGHT * 2 + 2; h++)
@@ -37,7 +44,7 @@ void displayBoard(char board[][BOARD_HEIGHT], int width, int height)
 				if (w == 0)
 					cout << " " << h / 2 << " |";
 				else
-					cout << " " << board[w - 1][(h / 2) - 1] << " |";
+					cout << " " << tiles[w - 1][(h / 2) - 1].letter << " |";
 			}
 			else // odd row
 			{
@@ -55,18 +62,18 @@ void displayBoard(char board[][BOARD_HEIGHT], int width, int height)
 
 }
 
-void displayMines(bool mines[][BOARD_HEIGHT], int width, int height)
+void displayMines(tile tiles[][BOARD_HEIGHT], int width, int height)
 {
-	char mineDisplay[BOARD_WIDTH][BOARD_HEIGHT];
+	tile mineDisplay[BOARD_WIDTH][BOARD_HEIGHT];
 	// set arrays
 	for (int w = 0; w < BOARD_WIDTH; w++)
 	{
 		for (int h = 0; h < BOARD_HEIGHT; h++)
 		{
-			if (mines[w][h])
-				mineDisplay[w][h] = '*';
+			if (tiles[w][h].hasMine)
+				mineDisplay[w][h].letter = '*';
 			else
-				mineDisplay[w][h] = ' ';
+				mineDisplay[w][h].letter = ' ';
 		}
 	}
 
@@ -74,7 +81,7 @@ void displayMines(bool mines[][BOARD_HEIGHT], int width, int height)
 	cout << endl << "You hit a mine! Game over." << endl;
 }
 
-bool hasPlayerWon(char board[][BOARD_HEIGHT], bool mines[][BOARD_HEIGHT], int width, int height)
+bool hasPlayerWon(tile tiles[][BOARD_HEIGHT], int width, int height)
 {
 	//check the number of ? to see if play has won
 	int numberOfQuestionMarks = 0;
@@ -82,7 +89,7 @@ bool hasPlayerWon(char board[][BOARD_HEIGHT], bool mines[][BOARD_HEIGHT], int wi
 	{
 		for (int h = 0; h < BOARD_HEIGHT; h++)
 		{
-			if (board[w][h] == '?')
+			if (tiles[w][h].letter == '?')
 				numberOfQuestionMarks++;
 		}
 	}
@@ -94,8 +101,8 @@ bool hasPlayerWon(char board[][BOARD_HEIGHT], bool mines[][BOARD_HEIGHT], int wi
 int main(int argc, char* argv[])
 {
 	//set the variables for the game 
-	bool mines[BOARD_WIDTH][BOARD_HEIGHT];
-	char board[BOARD_WIDTH][BOARD_HEIGHT];
+	tile tiles[BOARD_WIDTH][BOARD_HEIGHT];
+	
 	bool checkAgain = false;
 	int userWidth = 0;
 	int userHeight = 0;
@@ -117,8 +124,8 @@ int main(int argc, char* argv[])
 	{
 		for (int h = 0; h < BOARD_HEIGHT; h++)
 		{
-			mines[w][h] = false;
-			board[w][h] = '?';
+			tiles[w][h].hasMine = false;
+			tiles[w][h].letter = '?';
 		}
 	}
 	
@@ -133,10 +140,10 @@ int main(int argc, char* argv[])
 	do {
 		wCoordinate = rand() % 12;
 		hCoordinate = rand() % 9;
-		if (mines[wCoordinate][hCoordinate] == false)
+		if (tiles[wCoordinate][hCoordinate].hasMine == false)
 		{
 			numberOfMines++;
-			mines[wCoordinate][hCoordinate] = true;
+			tiles[wCoordinate][hCoordinate].hasMine = true;
 		}
 	} while (numberOfMines < 10);
 
@@ -147,7 +154,7 @@ int main(int argc, char* argv[])
 	do
 	{ 
 		//user input checks and 0 base the input
-		displayBoard(board, BOARD_WIDTH, BOARD_HEIGHT);
+		displayBoard(tiles, BOARD_WIDTH, BOARD_HEIGHT);
 		cout << "Dig at X: ";
 		cin >> userWidth;
 		cout << endl;
@@ -158,20 +165,20 @@ int main(int argc, char* argv[])
 		userWidth--;
 		userHeight--;
 
-		if (mines[userWidth][userHeight])
+		if (tiles[userWidth][userHeight].hasMine)
 		{
-			displayMines(mines, BOARD_WIDTH, BOARD_HEIGHT);
+			displayMines(tiles, BOARD_WIDTH, BOARD_HEIGHT);
 			return 0;
 		}
 
-		if (board[userWidth][userHeight] != '?'
+		if (tiles[userWidth][userHeight].letter != '?'
 			|| userWidth < 0 || userWidth>11 || userHeight < 0 || userHeight>8)
 		{
 			cout << "Invlalid input, please try again..." << endl;
 			continue;
 		}
 
-		board[userWidth][userHeight] = 'c';
+		tiles[userWidth][userHeight].letter = 'c';
 		
 		//Checks the spaces for mines or clears if non
 		do
@@ -182,7 +189,7 @@ int main(int argc, char* argv[])
 			{
 				for (int j = 0; j < BOARD_HEIGHT; j++)
 				{
-					if (board[i][j] == 'c')
+					if (tiles[i][j].letter == 'c')
 					{
 						int mineCount = 0;
 						for (int k = -1; k <= 1; k++)
@@ -194,7 +201,7 @@ int main(int argc, char* argv[])
 								if (adjWidth<0 || adjWidth>BOARD_WIDTH - 1 || adjHeight<0 || adjHeight>BOARD_HEIGHT - 1)
 									continue;
 
-								if (mines[adjWidth][adjHeight] == true)
+								if (tiles[adjWidth][adjHeight].hasMine == true)
 								{
 									mineCount++;
 								}
@@ -202,7 +209,7 @@ int main(int argc, char* argv[])
 						}
 						if (mineCount == 0)
 						{
-							board[i][j] = ' ';
+							tiles[i][j].letter = ' ';
 							for (int k = -1; k <= 1; k++)
 							{
 								for (int m = -1; m <= 1; m++)
@@ -212,9 +219,9 @@ int main(int argc, char* argv[])
 									if (adjWidth<0 || adjWidth>BOARD_WIDTH - 1 || adjHeight<0 || adjHeight>BOARD_HEIGHT - 1)
 										continue;
 
-									if (board[adjWidth][adjHeight] == '?')
+									if (tiles[adjWidth][adjHeight].letter == '?')
 									{
-										board[adjWidth][adjHeight] = 'c';
+										tiles[adjWidth][adjHeight].letter = 'c';
 										checkAgain = true;
 
 									}
@@ -223,12 +230,12 @@ int main(int argc, char* argv[])
 						}
 						else
 						{
-							board[i][j] = '0' + mineCount;
+							tiles[i][j].letter = '0' + mineCount;
 						}
 					}
 				}
 			}
-			if (hasPlayerWon(board, mines, BOARD_WIDTH, BOARD_HEIGHT))
+			if (hasPlayerWon(tiles, BOARD_WIDTH, BOARD_HEIGHT))
 			{
 				cout << "You Won!!!"<<endl;
 				return 0;
