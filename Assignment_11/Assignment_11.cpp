@@ -27,6 +27,7 @@ struct minesweeper
 	int width, height, mineCount, flagCount, unrevealedCount, moves;
 };
 
+minesweeper ms;
 
 void displayBoard(tile tiles[][BOARD_HEIGHT], int width, int height)
 {
@@ -108,7 +109,7 @@ int main(int argc, char* argv[])
 {
 	//set the variables for the game 
 	tile tiles[BOARD_WIDTH][BOARD_HEIGHT];
-	
+
 	bool checkAgain = false;
 	int userWidth = 0;
 	int userHeight = 0;
@@ -134,9 +135,6 @@ int main(int argc, char* argv[])
 			tiles[w][h].letter = '?';
 		}
 	}
-	
-
-	
 
 	// get the random h/w coordinates for mines 
 	int wCoordinate;
@@ -154,16 +152,18 @@ int main(int argc, char* argv[])
 	} while (numberOfMines < 10);
 
 
-
+	ms.moves = 1;
 	char userDecision = ' ';
 	// start game
 	do
-	{ 
+	{
 		userDecision = ' ';
+		//user input checks and 0 base the input
+		displayBoard(tiles, BOARD_WIDTH, BOARD_HEIGHT);
 
-		//moves will go here
+		cout << "Move #: " << ms.moves << endl;
 		cout << "[D]ig up Tile" << endl;
-		cout << "[F]lag/Unflag Tile. 0 flag(s) placed." << endl;
+		cout << "[F]lag/Unflag Tile. " << ms.flagCount << " flag(s) placed." << endl;
 		cout << "[Q]uit" << endl;
 		cout << "Choose an action: ";
 		cin >> userDecision;
@@ -173,82 +173,43 @@ int main(int argc, char* argv[])
 		{
 		case 'd':
 		case 'D':
-			cout << "D works"<<endl;
-			break;
+			cout << "Dig at... \nRow: ";
+			cin >> userWidth;
+			cout << endl;
+			cout << "Column: ";
+			cin >> userHeight;
+			cout << endl;
 
-		case 'f':
-		case 'F':
-			cout << "F works" << endl;
-			break;
-		
-		case 'q':
-		case 'Q':
-			cout << "Q works." << endl;
-			return 0;
+			userWidth--;
+			userHeight--;
 
-		default:
-				cout << "Invlaid Responce. Please enter a value in the []." << endl;
-				continue;
-		}
-
-
-		//user input checks and 0 base the input
-		displayBoard(tiles, BOARD_WIDTH, BOARD_HEIGHT);
-		cout << "Dig at X: ";
-		cin >> userWidth;
-		cout << endl;
-		cout << "Dig at Y: ";
-		cin >> userHeight;
-		cout << endl;
-
-		userWidth--;
-		userHeight--;
-
-		if (tiles[userWidth][userHeight].hasMine)
-		{
-			displayMines(tiles, BOARD_WIDTH, BOARD_HEIGHT);
-			return 0;
-		}
-
-		if (tiles[userWidth][userHeight].letter != '?'
-			|| userWidth < 0 || userWidth>11 || userHeight < 0 || userHeight>8)
-		{
-			cout << "Invlalid input, please try again..." << endl;
-			continue;
-		}
-
-		tiles[userWidth][userHeight].letter = 'c';
-		
-		//Checks the spaces for mines or clears if non
-		do
-		{
-			checkAgain = false;
-
-			for (int i = 0; i < BOARD_WIDTH; i++)
+			if (tiles[userWidth][userHeight].hasMine)
 			{
-				for (int j = 0; j < BOARD_HEIGHT; j++)
-				{
-					if (tiles[i][j].letter == 'c')
-					{
-						int mineCount = 0;
-						for (int k = -1; k <= 1; k++)
-						{
-							for (int m = -1; m <= 1; m++)
-							{
-								int adjWidth = i + k;
-								int adjHeight = j + m;
-								if (adjWidth<0 || adjWidth>BOARD_WIDTH - 1 || adjHeight<0 || adjHeight>BOARD_HEIGHT - 1)
-									continue;
+				displayMines(tiles, BOARD_WIDTH, BOARD_HEIGHT);
+				return 0;
+			}
 
-								if (tiles[adjWidth][adjHeight].hasMine == true)
-								{
-									mineCount++;
-								}
-							}
-						}
-						if (mineCount == 0)
+			if (tiles[userWidth][userHeight].letter != '?'
+				|| userWidth < 0 || userWidth>11 || userHeight < 0 || userHeight>8)
+			{
+				cout << "Invlalid input, please try again..." << endl;
+				continue;
+			}
+
+			tiles[userWidth][userHeight].letter = 'c';
+
+			//Checks the spaces for mines or clears if none
+			do
+			{
+				checkAgain = false;
+
+				for (int i = 0; i < BOARD_WIDTH; i++)
+				{
+					for (int j = 0; j < BOARD_HEIGHT; j++)
+					{
+						if (tiles[i][j].letter == 'c')
 						{
-							tiles[i][j].letter = ' ';
+							int mineCount = 0;
 							for (int k = -1; k <= 1; k++)
 							{
 								for (int m = -1; m <= 1; m++)
@@ -258,28 +219,71 @@ int main(int argc, char* argv[])
 									if (adjWidth<0 || adjWidth>BOARD_WIDTH - 1 || adjHeight<0 || adjHeight>BOARD_HEIGHT - 1)
 										continue;
 
-									if (tiles[adjWidth][adjHeight].letter == '?')
+									if (tiles[adjWidth][adjHeight].hasMine == true)
 									{
-										tiles[adjWidth][adjHeight].letter = 'c';
-										checkAgain = true;
-
+										mineCount++;
 									}
 								}
 							}
-						}
-						else
-						{
-							tiles[i][j].letter = '0' + mineCount;
+							if (mineCount == 0)
+							{
+								tiles[i][j].letter = ' ';
+								for (int k = -1; k <= 1; k++)
+								{
+									for (int m = -1; m <= 1; m++)
+									{
+										int adjWidth = i + k;
+										int adjHeight = j + m;
+										if (adjWidth<0 || adjWidth>BOARD_WIDTH - 1 || adjHeight<0 || adjHeight>BOARD_HEIGHT - 1)
+											continue;
+
+										if (tiles[adjWidth][adjHeight].letter == '?')
+										{
+											tiles[adjWidth][adjHeight].letter = 'c';
+											checkAgain = true;
+
+										}
+									}
+								}
+							}
+							else
+							{
+								tiles[i][j].letter = '0' + mineCount;
+							}
 						}
 					}
 				}
-			}
-			if (hasPlayerWon(tiles, BOARD_WIDTH, BOARD_HEIGHT))
-			{
-				cout << "You Won!!!"<<endl;
-				return 0;
-			}
+				if (hasPlayerWon(tiles, BOARD_WIDTH, BOARD_HEIGHT))
+				{
+					cout << "You Won!!!" << endl;
+					return 0;
+				}
 
-		} while (checkAgain);
+			} while (checkAgain);
+			break;
+		case 'f':
+		case 'F':
+			cout << "Dig at... \nRow: ";
+			cin >> userWidth;
+			cout << endl;
+			cout << "Column: ";
+			cin >> userHeight;
+			cout << endl;
+
+			userWidth--;
+			userHeight--;
+			break;
+
+		case 'q':
+		case 'Q':
+			cout << "Q works." << endl;
+			return 0;
+
+		default:
+			cout << "Invlaid Responce. Please enter a value in the []." << endl;
+			continue;
+		}
+
+
 	} while (true);
 }
