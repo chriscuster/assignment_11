@@ -157,6 +157,7 @@ int main(int argc, char* argv[])
 	// start game
 	do
 	{
+		
 		userDecision = ' ';
 		//user input checks and 0 base the input
 		displayBoard(tiles, BOARD_WIDTH, BOARD_HEIGHT);
@@ -258,7 +259,7 @@ int main(int argc, char* argv[])
 					cout << "You Won!!!" << endl;
 					return 0;
 				}
-
+				ms.moves++;
 			} while (checkAgain);
 			break;
 		case 'f':
@@ -273,21 +274,27 @@ int main(int argc, char* argv[])
 			userWidth--;
 			userHeight--;
 
-			if (tiles[userWidth][userHeight].letter == '?')
+			if (tiles[userWidth][userHeight].letter == '?'
+				&& userWidth > 0 && userWidth < 11 && userHeight > 0 && userHeight < 8)
+			{
 				tiles[userWidth][userHeight].letter = 'P';
-				
-
-			else if (tiles[userWidth][userHeight].letter == 'P')
+				ms.flagCount++;
+			}
+			else if (tiles[userWidth][userHeight].letter == 'P'
+				&& userWidth > 0 && userWidth < 11 && userHeight > 0 && userHeight < 8)
+			{
 				tiles[userWidth][userHeight].letter = '?';
-
+				ms.flagCount--;
+			}
 			else
+			{
 				cout << "Invalid Response. Please try again." << endl;
-					   			 		  
+			}
 			break;
 
 		case 'q':
 		case 'Q':
-			cout << "Q works." << endl;
+			cout << "Quitting..." << endl;
 			return 0;
 
 		default:
